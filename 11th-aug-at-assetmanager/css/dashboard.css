@@ -1,0 +1,631 @@
+/* Enhanced Professional Styling */
+body {
+    background-color: #f5f7fa;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Dashboard Header Enhancement */
+.dashboard-header {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    color: white;
+    padding: 30px 0;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.dashboard-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    bottom: -50%;
+    left: -50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    transform: rotate(30deg);
+}
+
+.dashboard-header h3 {
+    margin: 0 0 10px 0;
+    font-weight: 300;
+    font-size: 2.5rem;
+    letter-spacing: 1px;
+}
+
+.dashboard-header p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 1.1rem;
+}
+
+/* Enhanced Statistics Cards */
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    height: 80px;
+    background: rgba(0,0,0,0.03);
+    border-radius: 50%;
+    transform: translate(20px, -20px);
+}
+
+.stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    line-height: 1;
+}
+
+.stat-label {
+    color: #64748b;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+/* Filter Section */
+.filter-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.filter-section h5 {
+    margin-bottom: 20px;
+    color: #333;
+    font-weight: 500;
+}
+
+/* Enhanced Asset Cards */
+.asset-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.05);
+    background: white;
+    position: relative;
+}
+
+.asset-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.asset-card-content {
+    padding: 20px;
+}
+
+.asset-card-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.asset-icon {
+    font-size: 2rem;
+    margin-right: 15px;
+    color: #1976d2;
+}
+
+.asset-name {
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: #1e293b;
+    /* Prevent wrapping so header height stays consistent */
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.asset-type {
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.asset-location {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+/* Asset Labels */
+.asset-label-row {
+    margin: 10px 0;
+    /* Reserve consistent space for maintenance badges to avoid layout shift */
+    height: 28px;
+    display: flex;
+    align-items: center;
+}
+
+.asset-label {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    gap: 4px;
+}
+
+.asset-label.overdue {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.asset-label.due-soon {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+/* Status Colors Enhancement */
+.status-normal { 
+    color: #10b981;
+    font-weight: 500;
+}
+
+.status-in-maintenance { 
+    color: #f59e0b;
+    font-weight: 500;
+}
+
+.status-fault-shutdown { 
+    color: #ef4444;
+    font-weight: 500;
+}
+
+/* Maintenance Status Cards */
+.maintenance-due-soon {
+    border-left: 4px solid #f59e0b;
+    background: linear-gradient(to right, #fef3c7 0%, white 100%);
+}
+
+.maintenance-overdue {
+    border-left: 4px solid #ef4444;
+    background: linear-gradient(to right, #fee2e2 0%, white 100%);
+}
+
+/* Modal Enhancements */
+.modal {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.modal .modal-content {
+    padding: 30px;
+}
+
+.modal h4 {
+    margin-top: 0;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+/* Enhanced Asset Modal Styling */
+.asset-info-header {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+    color: white;
+    padding: 30px;
+    margin: -30px -30px 30px -30px;
+    position: relative;
+    overflow: hidden;
+}
+
+.asset-info-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    bottom: -50%;
+    left: -50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    transform: rotate(-30deg);
+}
+
+.asset-info-header h4 {
+    margin: 0;
+    font-weight: 300;
+    position: relative;
+    z-index: 1;
+    color: white;
+}
+
+.asset-info-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* Tabs Enhancement */
+.tabs {
+    background-color: transparent;
+    margin-bottom: 20px;
+}
+
+.tabs .tab a {
+    color: #64748b;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+.tabs .tab a:hover, .tabs .tab a.active {
+    color: #1976d2;
+    background-color: rgba(25, 118, 210, 0.05);
+}
+
+.tabs .indicator {
+    background-color: #1976d2;
+    height: 3px;
+}
+
+/* Image Modal Enhancement */
+#imageModal {
+    max-width: 95%;
+    max-height: 95%;
+    width: auto;
+    height: auto;
+}
+
+#imageModal .modal-content {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #000;
+}
+
+.image-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    background: #000;
+    position: relative;
+    min-height: 400px;
+}
+
+.image-container img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+/* Image modal footer styling */
+#imageModal .modal-footer {
+    background-color: rgba(0,0,0,0.9);
+    border-top: 1px solid #333;
+    padding: 10px 24px;
+    position: relative;
+    z-index: 10;
+}
+
+#imageModal .modal-footer .btn-flat {
+    color: white;
+}
+
+#imageModal .modal-footer .btn-flat:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+/* Zoom controls for image */
+.image-controls {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 5;
+}
+
+.image-controls .btn-floating {
+    background-color: rgba(0,0,0,0.7);
+}
+
+.image-controls .btn-floating:hover {
+    background-color: rgba(0,0,0,0.9);
+}
+
+/* Info Cards in Modal */
+.info-card {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.info-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
+
+.info-card h6 {
+    color: #1976d2;
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.info-item {
+    padding: 10px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.info-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 4px;
+}
+
+.info-value {
+    font-size: 1rem;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+/* Maintenance Cards */
+.maintenance-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-left: 4px solid #1976d2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.maintenance-type {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.maintenance-type.preventive {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+.maintenance-type.corrective {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+.maintenance-type.emergency {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.maintenance-type.routine {
+    background-color: #dbeafe;
+    color: #2563eb;
+}
+
+/* Procedure Cards */
+.procedure-card {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.procedure-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    transform: translateY(-3px);
+}
+
+.procedure-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.procedure-duration {
+    background: #f0f9ff;
+    color: #0369a1;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.procedure-steps {
+    color: #64748b;
+    margin-bottom: 15px;
+}
+
+.procedure-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Test History Cards */
+.test-history-card {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.test-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.test-status {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.test-actions {
+    margin-top: 15px;
+}
+
+/* Wizard Progress */
+.wizard-progress {
+    margin-bottom: 30px;
+}
+
+.wizard-navigation {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Personnel Step */
+.personnel-step h5 {
+    color: #1976d2;
+    margin-bottom: 20px;
+}
+
+/* Test Steps */
+.test-step {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 25px;
+    border-left: 4px solid #1976d2;
+}
+
+.step-description {
+    margin-bottom: 25px;
+}
+
+.step-image img {
+    cursor: pointer;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.step-image img:hover {
+    transform: scale(1.02);
+}
+
+.step-inputs .row {
+    margin-bottom: 0;
+}
+
+/* Test Summary */
+.test-summary h5 {
+    color: #1976d2;
+    margin-bottom: 20px;
+}
+
+/* Validation Messages */
+#stepValidationMessage {
+    display: none;
+    margin-bottom: 20px;
+}
+
+#stepValidationMessage.error {
+    display: block;
+}
+
+/* Responsive Design */
+@media only screen and (max-width: 600px) {
+    .summary-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-header h3 {
+        font-size: 2rem;
+    }
+    
+    .asset-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .asset-icon {
+        margin-bottom: 10px;
+    }
+    
+    .procedure-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .test-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+
+/* Animation for cards appearing */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.asset-col {
+    animation: fadeInUp 0.5s ease-out;
+    animation-fill-mode: both;
+}

@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Centre Asset Management - Complete Version</title>
+        <!-- Auto-redirect root to modular dashboard (preserve hash if present) -->
+        <meta http-equiv="refresh" content="0; url=dashboard-modular.html">
+        <script>
+            (function(){
+                var target = 'dashboard-modular.html';
+                if (location.hash) target += location.hash;
+                // Use replace so back button doesn’t bounce through the old index
+                window.location.replace(target);
+            })();
+        </script>
+    
+    <!-- Material Design CSS -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    
+    <style>
+        /* Enhanced Professional Styling */
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        /* Dashboard Header Enhancement */
+        .dashboard-header {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            bottom: -50%;
+            left: -50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transform: rotate(30deg);
+        }
+        
+        .dashboard-header h3 {
+            margin: 0 0 10px 0;
+            font-weight: 300;
+            font-size: 2.5rem;
+            letter-spacing: 1px;
+        }
+        
+        .dashboard-header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        /* Enhanced Statistics Cards */
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 50%;
+            transform: translate(20px, -20px);
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+        
+        /* Enhanced Filter Section */
+        .filter-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .filter-section h5 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #334155;
+            font-weight: 500;
+        }
+        
+        /* Enhanced Asset Cards */
+        .asset-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.05);
+            background: white;
+            position: relative;
+        }
+        
+        .asset-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .asset-card .card-content {
+            padding: 20px;
+        }
+        
+        .asset-card .card-title {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+        
+        .asset-card p {
+            margin: 8px 0;
+            font-size: 0.95rem;
+            color: #475569;
+        }
+        
+        .asset-card p strong {
+            color: #334155;
+            font-weight: 500;
+        }
+        
+        /* Status Colors Enhancement */
+        .status-normal { 
+            color: #10b981;
+            font-weight: 500;
+        }
+        .status-in-maintenance { 
+            color: #f59e0b;
+            font-weight: 500;
+        }
+        .status-fault-shutdown { 
+            color: #ef4444;
+            font-weight: 500;
+        }
+        
+        /* Maintenance Status Cards */
+        .maintenance-due-soon {
+            border-left: 4px solid #f59e0b;
+            background: linear-gradient(to right, #fef3c7 0%, white 100%);
+        }
+        
+        .maintenance-overdue {
+            border-left: 4px solid #ef4444;
+            background: linear-gradient(to right, #fee2e2 0%, white 100%);
+        }
+        
+        /* Loading Spinner Enhancement */
+        .loading-spinner {
+            text-align: center;
+            padding: 60px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        /* Modal Enhancements */
+        .modal {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .modal .modal-content {
+            padding: 30px;
+        }
+        
+        .modal h4 {
+            margin-top: 0;
+            color: #1e293b;
+            font-weight: 500;
+        }
+        
+        .modal .modal-footer {
+            background-color: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        /* Tabs Enhancement */
+        .tabs {
+            background-color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        .tabs .tab a {
+            color: #64748b;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        
+        .tabs .tab a:hover, .tabs .tab a.active {
+            color: #1976d2;
+            background-color: rgba(25, 118, 210, 0.05);
+        }
+        
+        .tabs .indicator {
+            background-color: #1976d2;
+            height: 3px;
+        }
+        
+        /* Test Step Enhancement */
+        .test-step {
+            margin-bottom: 20px;
+            padding: 20px;
+            border-left: 4px solid #1976d2;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-step:hover {
+            background-color: #f1f5f9;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .test-step.completed {
+            border-left-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        
+        .test-step.failed {
+            border-left-color: #ef4444;
+            background-color: #fef2f2;
+        }
+        
+        .test-step h6 {
+            margin-top: 0;
+            color: #1e293b;
+            font-weight: 500;
+        }
+        
+        /* Responsive Grid Enhancement */
+        @media only screen and (max-width: 600px) {
+            .summary-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-header h3 {
+                font-size: 2rem;
+            }
+        }
+        
+        /* Animation for cards appearing */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .asset-card {
+            animation: fadeInUp 0.5s ease-out;
+            animation-fill-mode: both;
+        }
+        
+        .asset-card:nth-child(1) { animation-delay: 0.1s; }
+        .asset-card:nth-child(2) { animation-delay: 0.2s; }
+        .asset-card:nth-child(3) { animation-delay: 0.3s; }
+        .asset-card:nth-child(4) { animation-delay: 0.4s; }
+        .asset-card:nth-child(5) { animation-delay: 0.5s; }
+        .asset-card:nth-child(6) { animation-delay: 0.6s; }
+        
+        /* Warning and Info Badges */
+        .maintenance-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .maintenance-badge.overdue {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .maintenance-badge.due-soon {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+        
+        .maintenance-badge i {
+            margin-right: 4px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <h3>Data Centre Asset Management</h3>
+            <p>Complete Asset Tracking & Maintenance System</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Summary Statistics -->
+        <div class="summary-stats">
+            <div class="stat-card">
+                <div class="stat-number">342</div>
+                <div class="stat-label">Total Assets</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">298</div>
+                <div class="stat-label">Active Assets</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">28</div>
+                <div class="stat-label">Maintenance Due</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">16</div>
+                <div class="stat-label">Critical Alerts</div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <h5>Filter Assets</h5>
+            <div class="row">
+                <div class="col s12 m3">
+                    <select id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="normal">Normal</option>
+                        <option value="in-maintenance">In Maintenance</option>
+                        <option value="fault-shutdown">Fault/Shutdown</option>
+                    </select>
+                    <label>Status</label>
+                </div>
+                <div class="col s12 m3">
+                    <select id="typeFilter">
+                        <option value="">All Types</option>
+                        <option value="server">Server</option>
+                        <option value="network">Network Equipment</option>
+                        <option value="storage">Storage</option>
+                        <option value="cooling">Cooling System</option>
+                        <option value="power">Power System</option>
+                    </select>
+                    <label>Asset Type</label>
+                </div>
+                <div class="col s12 m3">
+                    <select id="locationFilter">
+                        <option value="">All Locations</option>
+                        <option value="rack-a01">Rack A01</option>
+                        <option value="rack-a02">Rack A02</option>
+                        <option value="rack-b01">Rack B01</option>
+                        <option value="rack-b02">Rack B02</option>
+                        <option value="utility-room">Utility Room</option>
+                    </select>
+                    <label>Location</label>
+                </div>
+                <div class="col s12 m3">
+                    <input type="text" id="searchInput" placeholder="Search assets...">
+                    <label for="searchInput">Search</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner (initially hidden) -->
+        <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+            <div class="preloader-wrapper big active">
+                <div class="spinner-layer spinner-blue-only">
+                    <div class="circle-clipper left">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="gap-patch">
+                        <div class="circle"></div>
+                    </div>
+                    <div class="circle-clipper right">
+                        <div class="circle"></div>
+                    </div>
+                </div>
+            </div>
+            <p>Loading assets...</p>
+        </div>
+
+        <!-- Assets Grid -->
+        <div id="assetsGrid" class="row">
+            <!-- Sample Asset Cards - These would be dynamically generated in a real application -->
+            <div class="col s12 m6 l4">
+                <div class="asset-card card" onclick="openAssetModal('server-001')">
+                    <div class="card-content">
+                        <span class="card-title">Server-001</span>
+                        <p><strong>Type:</strong> Dell PowerEdge R740</p>
+                        <p><strong>Location:</strong> Rack A01, U10-U12</p>
+                        <p><strong>Status:</strong> <span class="status-normal">Normal</span></p>
+                        <p><strong>Last Maintenance:</strong> 2024-07-15</p>
+                        <div class="maintenance-badge due-soon">
+                            <i class="material-icons">warning</i>
+                            Maintenance Due in 5 days
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col s12 m6 l4">
+                <div class="asset-card card maintenance-overdue" onclick="openAssetModal('cooling-001')">
+                    <div class="card-content">
+                        <span class="card-title">HVAC-001</span>
+                        <p><strong>Type:</strong> Cooling System</p>
+                        <p><strong>Location:</strong> Utility Room</p>
+                        <p><strong>Status:</strong> <span class="status-in-maintenance">In Maintenance</span></p>
+                        <p><strong>Last Maintenance:</strong> 2024-06-01</p>
+                        <div class="maintenance-badge overdue">
+                            <i class="material-icons">error</i>
+                            Maintenance Overdue
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col s12 m6 l4">
+                <div class="asset-card card" onclick="openAssetModal('switch-001')">
+                    <div class="card-content">
+                        <span class="card-title">Switch-001</span>
+                        <p><strong>Type:</strong> Cisco Nexus 9000</p>
+                        <p><strong>Location:</strong> Rack B01, U1-U2</p>
+                        <p><strong>Status:</strong> <span class="status-normal">Normal</span></p>
+                        <p><strong>Last Maintenance:</strong> 2024-08-01</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col s12 m6 l4">
+                <div class="asset-card card" onclick="openAssetModal('storage-001')">
+                    <div class="card-content">
+                        <span class="card-title">Storage-001</span>
+                        <p><strong>Type:</strong> NetApp FAS8300</p>
+                        <p><strong>Location:</strong> Rack A02, U15-U20</p>
+                        <p><strong>Status:</strong> <span class="status-fault-shutdown">Fault/Shutdown</span></p>
+                        <p><strong>Last Maintenance:</strong> 2024-07-20</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col s12 m6 l4">
+                <div class="asset-card card" onclick="openAssetModal('ups-001')">
+                    <div class="card-content">
+                        <span class="card-title">UPS-001</span>
+                        <p><strong>Type:</strong> APC Smart-UPS 3000</p>
+                        <p><strong>Location:</strong> Utility Room</p>
+                        <p><strong>Status:</strong> <span class="status-normal">Normal</span></p>
+                        <p><strong>Last Maintenance:</strong> 2024-08-05</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col s12 m6 l4">
+                <div class="asset-card card maintenance-due-soon" onclick="openAssetModal('server-002')">
+                    <div class="card-content">
+                        <span class="card-title">Server-002</span>
+                        <p><strong>Type:</strong> HPE ProLiant DL380</p>
+                        <p><strong>Location:</strong> Rack B02, U5-U7</p>
+                        <p><strong>Status:</strong> <span class="status-normal">Normal</span></p>
+                        <p><strong>Last Maintenance:</strong> 2024-07-10</p>
+                        <div class="maintenance-badge due-soon">
+                            <i class="material-icons">schedule</i>
+                            Maintenance Due Soon
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Asset Details Modal -->
+    <div id="assetModal" class="modal modal-fixed-footer">
+        <div class="modal-content">
+            <h4 id="modalTitle">Asset Details</h4>
+            <div id="modalContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+            <a href="#!" class="waves-effect waves-green btn" onclick="openMaintenanceModal()">Schedule Maintenance</a>
+        </div>
+    </div>
+
+    <!-- Materialize JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    
+    <script>
+        // Initialize Materialize components
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Select elements
+            var selects = document.querySelectorAll('select');
+            M.FormSelect.init(selects);
+            
+            // Initialize Modal
+            var modals = document.querySelectorAll('.modal');
+            M.Modal.init(modals);
+            
+            // Add event listeners for filters
+            document.getElementById('statusFilter').addEventListener('change', filterAssets);
+            document.getElementById('typeFilter').addEventListener('change', filterAssets);
+            document.getElementById('locationFilter').addEventListener('change', filterAssets);
+            document.getElementById('searchInput').addEventListener('input', filterAssets);
+        });
+
+        // Sample asset data
+        const assetData = {
+            'server-001': {
+                name: 'Server-001',
+                type: 'Dell PowerEdge R740',
+                location: 'Rack A01, U10-U12',
+                status: 'Normal',
+                lastMaintenance: '2024-07-15',
+                serialNumber: 'DPR740001',
+                warranty: '2026-12-31',
+                specifications: {
+                    'CPU': 'Intel Xeon Gold 6230',
+                    'RAM': '64GB DDR4',
+                    'Storage': '2TB SSD RAID1',
+                    'Network': '4x 1GbE, 2x 10GbE'
+                }
+            },
+            'cooling-001': {
+                name: 'HVAC-001',
+                type: 'Cooling System',
+                location: 'Utility Room',
+                status: 'In Maintenance',
+                lastMaintenance: '2024-06-01',
+                serialNumber: 'HVAC001',
+                warranty: '2025-06-30',
+                specifications: {
+                    'Capacity': '50 tons',
+                    'Power': '380V 3-phase',
+                    'Coolant': 'R-410A',
+                    'Control': 'Digital thermostat'
+                }
+            },
+            'switch-001': {
+                name: 'Switch-001',
+                type: 'Cisco Nexus 9000',
+                location: 'Rack B01, U1-U2',
+                status: 'Normal',
+                lastMaintenance: '2024-08-01',
+                serialNumber: 'CSC9K001',
+                warranty: '2027-03-15',
+                specifications: {
+                    'Ports': '48x 10GbE, 4x 40GbE',
+                    'Switching Capacity': '1.28 Tbps',
+                    'Power': 'Dual 350W PSU',
+                    'OS': 'NX-OS 9.3'
+                }
+            },
+            'storage-001': {
+                name: 'Storage-001',
+                type: 'NetApp FAS8300',
+                location: 'Rack A02, U15-U20',
+                status: 'Fault/Shutdown',
+                lastMaintenance: '2024-07-20',
+                serialNumber: 'NTA8300001',
+                warranty: '2026-09-12',
+                specifications: {
+                    'Capacity': '200TB raw',
+                    'Controllers': 'Dual HA',
+                    'Protocol': 'NFS, CIFS, iSCSI, FC',
+                    'RAID': 'RAID-DP'
+                }
+            },
+            'ups-001': {
+                name: 'UPS-001',
+                type: 'APC Smart-UPS 3000',
+                location: 'Utility Room',
+                status: 'Normal',
+                lastMaintenance: '2024-08-05',
+                serialNumber: 'APC3K001',
+                warranty: '2025-12-01',
+                specifications: {
+                    'Capacity': '3000VA/2400W',
+                    'Runtime': '10 minutes at full load',
+                    'Input': '230V',
+                    'Outlets': '8x IEC C13'
+                }
+            },
+            'server-002': {
+                name: 'Server-002',
+                type: 'HPE ProLiant DL380',
+                location: 'Rack B02, U5-U7',
+                status: 'Normal',
+                lastMaintenance: '2024-07-10',
+                serialNumber: 'HPE380002',
+                warranty: '2026-08-20',
+                specifications: {
+                    'CPU': 'Intel Xeon Silver 4214',
+                    'RAM': '32GB DDR4',
+                    'Storage': '1TB HDD RAID5',
+                    'Network': '4x 1GbE'
+                }
+            }
+        };
+
+        function openAssetModal(assetId) {
+            const asset = assetData[assetId];
+            if (!asset) return;
+
+            document.getElementById('modalTitle').textContent = asset.name + ' - Details';
+            
+            const statusClass = asset.status.toLowerCase().replace(/[^a-z]/g, '-');
+            
+            const content = `
+                <div class="row">
+                    <div class="col s12 m6">
+                        <h6>Basic Information</h6>
+                        <p><strong>Asset Type:</strong> ${asset.type}</p>
+                        <p><strong>Location:</strong> ${asset.location}</p>
+                        <p><strong>Serial Number:</strong> ${asset.serialNumber}</p>
+                        <p><strong>Status:</strong> <span class="status-${statusClass}">${asset.status}</span></p>
+                        <p><strong>Last Maintenance:</strong> ${asset.lastMaintenance}</p>
+                        <p><strong>Warranty Expires:</strong> ${asset.warranty}</p>
+                    </div>
+                    <div class="col s12 m6">
+                        <h6>Specifications</h6>
+                        ${Object.entries(asset.specifications).map(([key, value]) => 
+                            `<p><strong>${key}:</strong> ${value}</p>`
+                        ).join('')}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        <h6>Recent Activity</h6>
+                        <div class="collection">
+                            <div class="collection-item">
+                                <span class="title">Routine Maintenance Completed</span>
+                                <p>Performed by: John Smith<br>
+                                Date: ${asset.lastMaintenance}<br>
+                                Duration: 2 hours</p>
+                            </div>
+                            <div class="collection-item">
+                                <span class="title">System Health Check</span>
+                                <p>Performed by: Automated System<br>
+                                Date: ${new Date().toISOString().split('T')[0]}<br>
+                                Result: All systems nominal</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('modalContent').innerHTML = content;
+            
+            const modal = M.Modal.getInstance(document.getElementById('assetModal'));
+            modal.open();
+        }
+
+        function openMaintenanceModal() {
+            M.toast({html: 'Maintenance scheduling feature coming soon!', classes: 'blue'});
+        }
+
+        function filterAssets() {
+            const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value.toLowerCase();
+            const locationFilter = document.getElementById('locationFilter').value.toLowerCase();
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            
+            const assetCards = document.querySelectorAll('.asset-card');
+            
+            assetCards.forEach(card => {
+                const cardContent = card.textContent.toLowerCase();
+                const statusMatch = !statusFilter || cardContent.includes(statusFilter);
+                const typeMatch = !typeFilter || cardContent.includes(typeFilter);
+                const locationMatch = !locationFilter || cardContent.includes(locationFilter);
+                const searchMatch = !searchInput || cardContent.includes(searchInput);
+                
+                if (statusMatch && typeMatch && locationMatch && searchMatch) {
+                    card.parentElement.style.display = 'block';
+                } else {
+                    card.parentElement.style.display = 'none';
+                }
+            });
+        }
+
+        // Simulate real-time updates
+        function updateStats() {
+            // This would typically fetch data from a server
+            console.log('Stats updated at:', new Date().toLocaleTimeString());
+        }
+
+        // Update stats every 30 seconds
+        setInterval(updateStats, 30000);
+    </script>
+</body>
+</html>

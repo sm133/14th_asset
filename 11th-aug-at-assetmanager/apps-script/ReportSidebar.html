@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body { font-family: Roboto, Arial, sans-serif; padding: 12px; }
+      label { font-size: 12px; color: #555; }
+      select, input[type="date"], button { width: 100%; padding: 8px; margin: 6px 0 14px; }
+      .row { display: flex; gap: 8px; }
+      .row > * { flex: 1; }
+      .muted { color: #777; font-size: 12px; }
+      .chip { display: inline-block; padding: 4px 8px; background: #e3f2fd; color: #0d47a1; border-radius: 16px; font-size: 12px; }
+      .success { color: #1b5e20; }
+      .error { color: #b71c1c; }
+    </style>
+  </head>
+  <body>
+    <h3 style="margin:0 0 8px;">Report Generator</h3>
+    <div class="muted">Pulls sessions from the TestResults sheet (A:Q). Choose a procedure and asset, then a specific run.</div>
+
+    <label>Procedure</label>
+    <select id="procedureSelect"></select>
+
+    <label>Asset</label>
+    <select id="assetSelect" disabled></select>
+
+  <label>Date (optional, matches column F)</label>
+  <input id="onlyDate" type="date" />
+
+    <label>Session</label>
+    <select id="sessionSelect" disabled></select>
+
+    <div class="muted">Output</div>
+    <div>
+      <label><input type="radio" name="out" value="doc" checked/> Google Doc</label>
+      <label><input type="radio" name="out" value="sheet"/> New Sheet Tab</label>
+    </div>
+
+    <button id="generateBtn">Generate Report</button>
+    <div id="status" class="muted"></div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      function setStatus(msg, cls = '') {
+        const s = $('status');
+        s.textContent = msg || '';
+        s.className = 'muted ' + (cls || '');
+      }
+
+      function opt(label, value) {
+        const o = document.createElement('option');
+        o.text = label; o.value = value; return o;
+      }
+
+      function loadProcedures() {
+        setStatus('Loading procedures...');
+        google.script.run.withSuccessHandler(list => {
+          const sel = $('procedureSelect');
+          sel.innerHTML = '';
+          sel.appendChild(opt('-- Select Procedure --', ''));
+          (list || []).forEach(p => sel.appendChild(opt(`${p.name || p.id} ${p.name ? '('+p.id+')' : ''}`, p.id)));
+          setStatus('');
+        }).withFailureHandler(err => setStatus(err.message, 'error')).gsListProcedures();
+      }
+
+      function onProcedureChange() {
+        const pid = $('procedureSelect').value;
+        $('assetSelect').disabled = !pid;
+        $('sessionSelect').disabled = true;
+        $('assetSelect').innerHTML = ''; $('sessionSelect').innerHTML = '';
+        if (!pid) return;
+        setStatus('Loading assets...');
+        google.script.run.withSuccessHandler(list => {
+          const sel = $('assetSelect');
+          sel.innerHTML = '';
+          sel.appendChild(opt('-- Select Asset --', ''));
+          (list || []).forEach(a => sel.appendChild(opt(`${a.name || a.id} ${a.name ? '('+a.id+')' : ''}`, a.id)) );
+          setStatus('');
+        }).withFailureHandler(err => setStatus(err.message, 'error')).gsListAssetsForProcedure(pid);
+      }
+
+      function onAssetOrDateChange() {
+        const pid = $('procedureSelect').value;
+        const aid = $('assetSelect').value;
+  const od = $('onlyDate').value;
+        $('sessionSelect').disabled = !(pid && aid);
+        $('sessionSelect').innerHTML = '';
+        if (!(pid && aid)) return;
+        setStatus('Loading sessions...');
+        google.script.run.withSuccessHandler(list => {
+          const sel = $('sessionSelect');
+          sel.innerHTML = '';
+          sel.appendChild(opt('-- Select Session --', ''));
+          (list || []).forEach(s => {
+            const label = `${s.date} — ${s.assetName} — ${s.procedureName}`;
+            const key = JSON.stringify({procedureId: s.procedureId, assetId: s.assetId, timestamp: s.timestamp, onlyDate: od});
+            sel.appendChild(opt(label, key));
+          });
+          setStatus('');
+  }).withFailureHandler(err => setStatus(err.message, 'error')).gsListSessions(pid, aid, od);
+      }
+
+      function onGenerate() {
+        const out = (document.querySelector('input[name="out"]:checked')||{}).value || 'doc';
+        const ses = $('sessionSelect').value;
+        if (!ses) { setStatus('Select a session first.', 'error'); return; }
+        setStatus('Generating report...');
+        const cb = (res) => {
+          if (out === 'doc') {
+            setStatus('Report ready. Opening...', 'success');
+            google.script.run.openByUrl && window.open(res.url, '_blank');
+          } else {
+            setStatus(`Report tab created: ${res.sheetName}`, 'success');
+          }
+        };
+        const fail = (err) => setStatus(err.message || 'Failed to generate report', 'error');
+        if (out === 'doc') {
+          google.script.run.withSuccessHandler(cb).withFailureHandler(fail).generateReportForSession(ses);
+        } else {
+          google.script.run.withSuccessHandler(cb).withFailureHandler(fail).generateSheetReportForSession(ses);
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        loadProcedures();
+        $('procedureSelect').addEventListener('change', onProcedureChange);
+        $('assetSelect').addEventListener('change', onAssetOrDateChange);
+  $('onlyDate').addEventListener('change', onAssetOrDateChange);
+        $('generateBtn').addEventListener('click', onGenerate);
+      });
+    </script>
+  </body>
+</html>

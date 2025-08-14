@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Centre Asset Management - Modular Version</title>
+    
+    <!-- Material Design CSS -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    
+    <!-- Google APIs -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <!-- Main Dashboard Content -->
+    <div id="app">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col s12 m8">
+                        <h3>Data Centre Asset Management</h3>
+                        <p>Monitor and manage your critical infrastructure</p>
+                    </div>
+                    <div class="col s12 m4 right-align">
+                        <div id="buttonDiv" style="display: inline-block;"></div>
+                        <button id="signout_button" class="btn-flat white-text" onclick="handleSignoutClick()" style="display: none;">
+                            <i class="material-icons left">logout</i>Sign Out
+                        </button>
+                        <div id="user_info" style="display: none; margin-top: 10px; opacity: 0.9;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="container">
+            <!-- Statistics Cards -->
+            <div class="summary-stats">
+                <div class="stat-card">
+                    <div class="stat-number blue-text" id="totalAssets">0</div>
+                    <div class="stat-label">Total Assets</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number red-text" id="overdueCount">0</div>
+                    <div class="stat-label">Overdue Maintenance</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number orange-text" id="dueSoonCount">0</div>
+                    <div class="stat-label">Due Soon</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number purple-text" id="inMaintenanceCount">0</div>
+                    <div class="stat-label">In Maintenance</div>
+                </div>
+                <div class="stat-card" style="display:flex; flex-direction:column; justify-content:center; align-items:flex-start; cursor:pointer;" onclick="window.location.href='recent-activity.html'">
+                    <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+                        <i class="material-icons" style="font-size:32px; color:#1976d2;">history</i>
+                        <span style="font-size:1.4rem; font-weight:600; color:#1976d2;">Recent</span>
+                    </div>
+                    <div class="stat-label" style="margin-top:auto;">View last 7 days</div>
+                </div>
+            </div>
+
+            <!-- Filters Section -->
+            <div class="filter-section">
+                <h5>Filter Assets</h5>
+                <div class="row" style="align-items: flex-end;">
+                    <div class="input-field col s12 m2">
+                        <select id="assetTypeFilter" onchange="filterAssets()">
+                            <option value="">All Types</option>
+                            <option value="generator">Generator</option>
+                            <option value="chiller">Chiller</option>
+                            <option value="ups">UPS</option>
+                            <option value="pac-unit">PAC Unit</option>
+                            <option value="fan-wall-unit">Fan Wall Unit</option>
+                            <option value="power-train-unit">Power Train Unit</option>
+                        </select>
+                        <label>Asset Type</label>
+                    </div>
+                    <div class="input-field col s12 m2">
+                        <select id="buildingFilter" onchange="filterAssets()">
+                            <option value="">All Buildings</option>
+                        </select>
+                        <label>Building</label>
+                    </div>
+                    <div class="input-field col s12 m2">
+                        <select id="floorFilter" onchange="filterAssets()">
+                            <option value="">All Levels</option>
+                        </select>
+                        <label>Level</label>
+                    </div>
+                    <div class="input-field col s12 m3">
+                        <select id="maintenanceFilter" multiple onchange="filterAssets()">
+                            <option value="in-maintenance">In Maintenance</option>
+                            <option value="due-soon">Due Soon</option>
+                            <option value="overdue">Overdue</option>
+                            <option value="fault-shutdown">Fault/Shutdown</option>
+                        </select>
+                        <label>Maintenance Status (multi-select)</label>
+                    </div>
+                    <div class="col s12 m3" style="display: flex; align-items: flex-end;">
+                        <button class="btn grey lighten-1 black-text" type="button" id="resetFiltersBtn" style="width: 100%; margin-bottom: 16px;">
+                            <i class="material-icons left">refresh</i>Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Assets Grid -->
+            <div id="assetsContainer" class="row">
+                <!-- Assets will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Asset Detail Modal -->
+    <div id="assetModal" class="modal modal-fixed-footer" style="width: 90%; max-width: 1200px;">
+        <div class="modal-content" style="padding: 0;">
+            <div class="asset-info-header">
+                <h4 id="modalAssetName"></h4>
+                <div class="asset-info-badge" id="modalAssetType"></div>
+            </div>
+            
+            <div style="padding: 30px;">
+                <!-- Tabs -->
+                <div class="row">
+                    <div class="col s12">
+                        <ul class="tabs">
+                            <li class="tab col s3"><a class="active" href="#assetInfo">
+                                <i class="material-icons">info</i> Information
+                            </a></li>
+                            <li class="tab col s3"><a href="#maintenanceHistory">
+                                <i class="material-icons">build</i> Maintenance
+                            </a></li>
+                            <li class="tab col s3"><a href="#testProcedures">
+                                <i class="material-icons">assignment</i> Test Procedures
+                            </a></li>
+                            <li class="tab col s3"><a href="#testHistory">
+                                <i class="material-icons">history</i> Test History
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Tab Content -->
+                <div id="assetInfo" class="col s12"></div>
+                <div id="maintenanceHistory" class="col s12"></div>
+                <div id="testProcedures" class="col s12"></div>
+                <div id="testHistory" class="col s12"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+        </div>
+    </div>
+
+    <!-- Test Execution Modal -->
+    <div id="testModal" class="modal modal-fixed-footer" style="width: 80%; max-width: 1000px;">
+        <div class="modal-content">
+            <h4 id="testProcedureName"></h4>
+            <div class="switch" style="margin-bottom: 20px;">
+                <label>
+                    Classic View
+                    <input type="checkbox" id="wizardModeToggle" checked>
+                    <span class="lever"></span>
+                    Step-by-Step Mode
+                </label>
+            </div>
+            <div id="testContent"></div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" id="cancelTest" class="modal-close waves-effect waves-red btn-flat">Cancel</a>
+            <a href="#!" id="submitTest" class="waves-effect waves-green btn" onclick="submitTestResults()">Submit Results</a>
+        </div>
+    </div>
+
+    <!-- Test Results Modal -->
+    <div id="resultsModal" class="modal">
+        <div class="modal-content">
+            <h4>Test Results Summary</h4>
+            <div id="resultsSummary"></div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+        </div>
+    </div>
+
+    <!-- Test Details Modal (populated dynamically) -->
+    <div id="testDetailsModal" class="modal modal-fixed-footer" style="width:80%; max-width: 1000px; display:none;">
+        <div class="modal-content">
+            <h5 id="testDetailsTitle">Test Details</h5>
+            <div id="testDetailsBody">Loading...</div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" id="exportTestReportBtn" class="waves-effect waves-light btn blue" style="margin-right:8px;">
+                <i class="material-icons left">picture_as_pdf</i>Export Report
+            </a>
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <div class="image-container">
+                <img id="previewImage" src="" alt="Procedure Image">
+                <div class="image-controls">
+                    <a class="btn-floating btn-small waves-effect waves-light" onclick="zoomOut()">
+                        <i class="material-icons">remove</i>
+                    </a>
+                    <a class="btn-floating btn-small waves-effect waves-light" onclick="resetZoom()">
+                        <i class="material-icons">fullscreen</i>
+                    </a>
+                    <a class="btn-floating btn-small waves-effect waves-light" onclick="zoomIn()">
+                        <i class="material-icons">add</i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-light btn-flat">
+                <i class="material-icons left">close</i>Close
+            </a>
+        </div>
+    </div>
+
+    <!-- Core JavaScript Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    
+    <!-- Application Modules -->
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/data-loader.js"></script>
+    <script src="js/asset-display.js"></script>
+    <script src="js/asset-details.js"></script>
+    <script src="js/maintenance.js"></script>
+    <script src="js/test-navigation.js"></script>
+    <script src="js/test-execution.js"></script>
+    <script src="js/test-procedures.js"></script>
+    
+    <!-- Application Initialization -->
+    <script>
+        // Global variables
+        let currentImageZoom = 1;
+        
+        // Initialize app when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded - Initializing...');
+            
+            // Initialize Materialize components first
+            console.log('Initializing Materialize components...');
+            M.FormSelect.init(document.querySelectorAll('select'));
+            
+            // Initialize all modals
+            const modals = document.querySelectorAll('.modal');
+            M.Modal.init(modals);
+            
+            // Initialize tabs
+            const tabs = document.querySelectorAll('.tabs');
+            M.Tabs.init(tabs);
+            
+            // Initialize other Materialize components if function exists
+            if (typeof initializeMaterializeComponents === 'function') {
+                initializeMaterializeComponents();
+            }
+            
+            // Setup event listeners for filters
+            document.getElementById('assetTypeFilter').addEventListener('change', filterAssets);
+            document.getElementById('buildingFilter').addEventListener('change', filterAssets);
+            document.getElementById('floorFilter').addEventListener('change', filterAssets);
+            document.getElementById('maintenanceFilter').addEventListener('change', filterAssets);
+            
+            // Reset filters button
+            document.getElementById('resetFiltersBtn').addEventListener('click', function() {
+                // Use the clearFilters function from asset-display.js
+                if (typeof clearFilters === 'function') {
+                    clearFilters();
+                } else {
+                    // Fallback manual reset
+                    document.getElementById('assetTypeFilter').selectedIndex = 0;
+                    document.getElementById('buildingFilter').selectedIndex = 0;
+                    document.getElementById('floorFilter').selectedIndex = 0;
+                    document.getElementById('maintenanceFilter').selectedIndex = 0;
+                    M.FormSelect.init(document.querySelectorAll('select'));
+                    if (typeof filterAssets === 'function') {
+                        filterAssets();
+                    }
+                }
+            });
+            
+            // Load data first
+            console.log('Loading initial data...');
+            if (typeof loadAllData === 'function') {
+                loadAllData().catch(error => {
+                    console.error('Error loading initial data:', error);
+                });
+            }
+            
+            // Initialize Google APIs with a slight delay to ensure libraries are loaded
+            setTimeout(() => {
+                initializeGoogleServices();
+            }, 500);
+
+            // After data loads, handle any deep link from recent activity (hash params like #asset=ID&testTs=TIMESTAMP)
+            const applyDeepLink = async () => {
+                if (!location.hash.startsWith('#')) return;
+                const hash = location.hash.substring(1);
+                const params = new URLSearchParams(hash);
+                const assetId = params.get('asset');
+                const testTs = params.get('testTs');
+                if (assetId) {
+                    // Wait until data likely loaded
+                    const ensureData = () => allAssets && allAssets.length; 
+                    let attempts = 0;
+                    while(!ensureData() && attempts < 40) { // up to ~2s @50ms
+                        await new Promise(r=>setTimeout(r,50));
+                        attempts++;
+                    }
+                    if (typeof showAssetDetails === 'function') {
+                        showAssetDetails(assetId);
+                        if (testTs) {
+                            // Wait a moment for modal content render
+                            setTimeout(()=>{
+                                try {
+                                    if (typeof showTestHistory === 'function') showTestHistory();
+                                    // Try to highlight the test entry
+                                    const el = Array.from(document.querySelectorAll('#testHistory .test-history-card button'))
+                                      .map(btn=>({btn, ts: (btn.getAttribute('onclick')||'').match(/viewTestDetails\('(.*)'\)/)?.[1]}))
+                                      .find(o=>o.ts===testTs);
+                                    if (el) {
+                                        el.btn.closest('.test-history-card').style.outline = '2px solid #1976d2';
+                                        el.btn.closest('.test-history-card').scrollIntoView({behavior:'smooth', block:'center'});
+                                    }
+                                } catch(e) {}
+                            }, 400);
+                        }
+                    }
+                }
+            };
+            // Defer deep link processing slightly to allow loadAllData
+            setTimeout(applyDeepLink, 800);
+        });
+    </script>
+</body>
+</html>
